@@ -1,0 +1,86 @@
+{
+  "policy": {
+    "name": "delete-test-image",
+    "resource": "huaweicloud.ims",
+    "filters": [
+      {
+        "type": "value",
+        "key": "name",
+        "value": "test"
+      }
+    ],
+    "actions": [
+      "delete"
+    ]
+  },
+  "version": "0.9.43",
+  "execution": {
+    "id": "3cedb2c0-ad4d-41b0-bdbe-8df39fe0c722",
+    "start": 1742266986.069963,
+    "end_time": 1742266991.6529365,
+    "duration": 5.582973480224609
+  },
+  "config": {
+    "region": "",
+    "regions": [],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": null,
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "=",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "ims_delete.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {
+    "snapshot_time": 5.582968473434448,
+    "cache_size": 536576,
+    "num_fds": 2,
+    "cpu_user": 0.3799999999999999,
+    "cpu_system": 0.1499999999999999,
+    "rss": 29900800,
+    "vms": 179732480,
+    "shared": 1277952,
+    "data": 179527680
+  },
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-03-18T11:03:09.058561",
+      "Value": 2,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-03-18T11:03:09.058579",
+      "Value": 2.9857866764068604,
+      "Unit": "Seconds"
+    },
+    {
+      "MetricName": "ActionTime",
+      "Timestamp": "2025-03-18T11:03:11.652908",
+      "Value": 2.5926358699798584,
+      "Unit": "Seconds"
+    }
+  ]
+}

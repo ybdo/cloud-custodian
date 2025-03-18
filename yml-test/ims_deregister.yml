@@ -1,0 +1,10 @@
+policies:
+  - name: ims-deregister-test
+    resource: huaweicloud.ims
+    filters:
+      - type: value
+        key: name
+        value: "test"
+    actions:
+      - deregister
+        

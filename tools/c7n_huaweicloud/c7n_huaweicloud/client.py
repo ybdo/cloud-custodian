@@ -12,6 +12,8 @@ from huaweicloudsdkevs.v2.region.evs_region import EvsRegion
 from huaweicloudsdkvpc.v2 import *
 from huaweicloudsdktms.v1 import *
 from huaweicloudsdktms.v1.region.tms_region import TmsRegion
+from huaweicloudsdkims.v2.region.ims_region import ImsRegion
+from huaweicloudsdkims.v2 import *
 
 log = logging.getLogger('custodian.huaweicloud.client')
 
@@ -58,6 +60,11 @@ class Session:
                 .with_credentials(globalCredentials) \
                 .with_region(TmsRegion.value_of(self.region)) \
                 .build()
+        elif service == 'ims':
+            client = ImsClient.new_builder() \
+                .with_credentials(credentials) \
+                .with_region(ImsRegion.value_of(self.region)) \
+                .build()
 
         return client
 
@@ -66,5 +73,7 @@ class Session:
             request = ListVpcsRequest()
         elif service == 'evs':
             request = ListVolumesRequest()
+        elif service == 'ims':
+            request = ListImagesRequest()
 
         return request

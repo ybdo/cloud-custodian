@@ -1,0 +1,89 @@
+{
+  "policy": {
+    "name": "ims-share-image",
+    "resource": "huaweicloud.ims",
+    "filters": [
+      {
+        "type": "value",
+        "key": "name",
+        "value": "itau"
+      }
+    ],
+    "actions": [
+      {
+        "type": "set-permissions",
+        "remove_projects": [
+          "05e35909a28026fc2fd0c00c65df4426"
+        ]
+      }
+    ]
+  },
+  "version": "0.9.43",
+  "execution": {
+    "id": "d197177e-296c-46b1-8874-ff003baf0668",
+    "start": 1742298927.8154538,
+    "end_time": 1742298929.8926847,
+    "duration": 2.077230930328369
+  },
+  "config": {
+    "region": "",
+    "regions": [],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": null,
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "=",
+    "cache_period": 15,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "yml-test/ims_set-permissions.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {
+    "snapshot_time": 2.077242136001587,
+    "num_fds": 2,
+    "cpu_user": 0.050000000000000044,
+    "rss": 4284416,
+    "vms": 78520320,
+    "shared": 1232896,
+    "data": 78315520
+  },
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-03-18T19:55:27.827937",
+      "Value": 1,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-03-18T19:55:27.827949",
+      "Value": 0.011270761489868164,
+      "Unit": "Seconds"
+    },
+    {
+      "MetricName": "ActionTime",
+      "Timestamp": "2025-03-18T19:55:29.892665",
+      "Value": 2.064222574234009,
+      "Unit": "Seconds"
+    }
+  ]
+}

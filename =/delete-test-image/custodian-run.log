@@ -1,0 +1,4 @@
+2025-03-18 11:03:09,058 - custodian.policy - INFO - policy:delete-test-image resource:huaweicloud.ims region: count:2 time:2.99
+2025-03-18 11:03:10,384 - custodian.huaweicloud.resources.ims - INFO - response:{}
+2025-03-18 11:03:11,650 - custodian.huaweicloud.resources.ims - INFO - response:{}
+2025-03-18 11:03:11,651 - custodian.policy - INFO - policy:delete-test-image action:imsdelete resources:2 execution_time:2.59
