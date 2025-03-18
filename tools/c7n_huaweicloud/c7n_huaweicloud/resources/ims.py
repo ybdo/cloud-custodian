@@ -58,7 +58,23 @@ class Deregister(HuaweiCloudBaseAction):
 
 @Ims.action_registry.register("set-permissions")
 class SetPermissions(HuaweiCloudBaseAction):
+    """Share IMS Images.
 
+    :Example:
+
+    .. code-block:: yaml
+
+        policies:
+          - name: ims-share-image
+            resource: huaweicloud.ims
+            filters:
+              - type: value
+                key: name
+                value: "test"
+            actions:
+              - type: set-permissions
+                remove_projects: ["imageId"]
+    """
     schema = type_schema(
         'set-permissions',
         add_projects={'type': 'array'},
