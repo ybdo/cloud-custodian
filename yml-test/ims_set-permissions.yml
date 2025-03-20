@@ -4,7 +4,7 @@ policies:
     filters:
       - type: value
         key: name
-        value: "itau"
+        value: itau
     actions:
       - type: set-permissions
         remove_projects: ["05e35909a28026fc2fd0c00c65df4426"]

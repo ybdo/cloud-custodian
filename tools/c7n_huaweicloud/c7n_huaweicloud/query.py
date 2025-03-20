@@ -5,6 +5,7 @@ import logging
 import jmespath
 import sys
 
+from urllib.parse import parse_qs
 from c7n.actions import ActionRegistry
 from c7n.filters import FilterRegistry
 from c7n.manager import ResourceManager
@@ -24,7 +25,9 @@ class ResourceQuery:
         m = resource_manager.resource_type
         enum_op, path, pagination = m.enum_spec
 
-        if pagination == 'offset':
+        if pagination == 'marker':
+            resources = self._pagination_limit_marker(m, enum_op, path)
+        elif pagination == 'offset':
             resources = self._pagination_limit_offset(m, enum_op, path)
         else:
             log.exception(f"Unsupported pagination type: {pagination}")
@@ -61,6 +64,38 @@ class ResourceQuery:
     def _invoke_client_enum(self, client, enum_op, request):
         return getattr(client, enum_op)(request)
 
+
+    # ims的分页目前存在问题
+    def _pagination_limit_marker(self, m, enum_op, path):
+        session = local_session(self.session_factory)
+        client = session.client(m.service)
+
+        marker = None
+        limit = DEFAULT_LIMIT_SIZE
+        resources = []
+        while True:
+            request = session.request(m.service)
+            request.limit = limit
+            if marker:
+                request.marker = marker
+            
+            response = self._invoke_client_enum(client, enum_op, request)
+            res = jmespath.search(path, eval(
+                str(response).replace('null', 'None').replace('false', 'False').replace('true', 'True')))
+
+            if res is not None:
+                for data in res:
+                    data['id'] = data[m.id]
+            resources.extend(res)
+
+            next_marker = response.next if hasattr(response, 'next') else None
+            if next_marker is None:
+                break
+            query_params = next_marker.split("?")[1] if "?" in next_marker else ""
+            params = parse_qs(query_params)
+            limit = params.get('limit', [None])[0]
+            marker = params.get('marker', [None])[0]
+        return resources
 
 @sources.register('describe-huaweicloud')
 class DescribeSource:
