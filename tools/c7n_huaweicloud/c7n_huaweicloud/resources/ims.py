@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import json
 
 from huaweicloudsdkcore.exceptions import exceptions
 from huaweicloudsdkims.v2 import *
@@ -11,9 +12,6 @@ from c7n_huaweicloud.actions.base import HuaweiCloudBaseAction
 from c7n_huaweicloud.provider import resources
 from c7n_huaweicloud.query import QueryResourceManager, TypeInfo
 from c7n.filters import (AgeFilter,ValueFilter)
-from c7n.utils import (local_session,chunks)
-from concurrent.futures import as_completed
-from c7n.resolver import ValuesFrom
 
 log = logging.getLogger("custodian.huaweicloud.resources.ims")
 
@@ -24,7 +22,8 @@ class Ims(QueryResourceManager):
         service = 'ims'
         enum_spec = ("list_images", 'images', 'ims')
         id = 'id'
-        tag = True
+        tag_resource_type= 'private_image'
+
 
 
 @Ims.action_registry.register("deregister")
@@ -55,9 +54,7 @@ class Deregister(HuaweiCloudBaseAction):
         request.body = GlanceDeleteImageRequestBody()
         response = client.glance_delete_image(request)
         log.info(f"status_code:{response.status_code}")
-        # TODO: need to track whether the job succeed
-        response = None
-        return response
+        return json.dumps(response.to_dict())
 
 
 @Ims.action_registry.register("set-permissions")
@@ -87,20 +84,20 @@ class SetPermissions(HuaweiCloudBaseAction):
 
     def perform_action(self, resource):
         client = self.manager.get_client()
-
         addListProjectsbody=self.data.get('add_projects',None)
         removeListProjectsbody=self.data.get('remove_projects',None)
-
+        response={}
         if addListProjectsbody is not None and addListProjectsbody:
             request = BatchAddMembersRequest()
             request.body = BatchAddMembersRequestBody(
                 projects=addListProjectsbody,
                 images=[resource["id"]]
             )
-            print(request)
+            print("rrrrrrrrr")
             response = client.batch_add_members(request)
+            print("wwwwwwww")
             log.info(f"add_projects response status_code:{response.status_code}")
-        if removeListProjectsbody is not None and removeListProjectsbody:
+        elif removeListProjectsbody is not None and removeListProjectsbody:
             request = BatchDeleteMembersRequest()
             request.body = BatchAddMembersRequestBody(
                 projects=removeListProjectsbody,
@@ -108,8 +105,10 @@ class SetPermissions(HuaweiCloudBaseAction):
             )
             response = client.batch_delete_members(request)
             log.info(f"remove_projects response status_code:{response.status_code}")
-        response = None
-        return response
+        else:
+            raise ValueError("invalid add_projects or remove_projects")
+        log.info("#######%s" % response)
+        return json.dumps(response.to_dict())
 
 @Ims.action_registry.register("cancel-launch-permission")
 class CancelLaunchPermissions(HuaweiCloudBaseAction):
@@ -148,9 +147,7 @@ class CancelLaunchPermissions(HuaweiCloudBaseAction):
         response = client.batch_update_members(request)
 
         log.info(f"status_code:{response.status_code}")
-        # TODO: need to track whether the job succeed
-        response = None
-        return response
+        return json.dumps(response.to_dict())
     
 
 @Ims.action_registry.register("copy")
@@ -177,8 +174,8 @@ class Copy(HuaweiCloudBaseAction):
                          name={'type': 'string'},
                          enterprise_project_id={'type': 'string'},
                          description={'type': 'string'},
-                         cmk_id={'type': 'string'},
-                         required=('name'))
+                         cmk_id={'type': 'string'}
+                         )
     def perform_action(self, resource):
         client = self.manager.get_client()
         request = CopyImageInRegionRequest()
@@ -190,10 +187,10 @@ class Copy(HuaweiCloudBaseAction):
             cmk_id=self.data.get('cmk_id',None)
         )
         response = client.copy_image_in_region(request)
+        print("sssssssss")
         log.info(f"status_code:{response.status_code}")
         # TODO: need to track whether the job succeed
-        response = None
-        return response
+        return json.dumps(response.to_dict())
     
 
 @Ims.filter_registry.register("image-age")

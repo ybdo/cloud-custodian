@@ -180,6 +180,7 @@ class ResourceQuery:
                 return resources
             for data in res:
                 data['id'] = data[m.id]
+                data['tag_resource_type'] = m.tag_resource_type
                 marker=data['id']
             resources.extend(res)            
         return resources

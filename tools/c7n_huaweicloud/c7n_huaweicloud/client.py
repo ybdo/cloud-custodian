@@ -77,6 +77,11 @@ class Session:
                 .with_credentials(globalCredentials) \
                 .with_region(ConfigRegion.value_of(self.region)) \
                 .build()
+        elif service == 'ims':
+            client = ImsClient.new_builder() \
+                .with_credentials(credentials) \
+                .with_region(ImsRegion.value_of(self.region)) \
+                .build()
 
         return client
 
@@ -87,5 +92,7 @@ class Session:
             request = ListVolumesRequest()
         elif service == 'config':
             request = ShowTrackerConfigRequest()
+        elif service == 'ims':
+            request = ListImagesRequest()
 
         return request
