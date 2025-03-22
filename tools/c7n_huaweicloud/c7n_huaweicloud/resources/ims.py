@@ -10,7 +10,10 @@ from c7n.utils import type_schema
 from c7n_huaweicloud.actions.base import HuaweiCloudBaseAction
 from c7n_huaweicloud.provider import resources
 from c7n_huaweicloud.query import QueryResourceManager, TypeInfo
-from c7n.filters import (AgeFilter)
+from c7n.filters import (AgeFilter,ValueFilter)
+from c7n.utils import (local_session,chunks)
+from concurrent.futures import as_completed
+from c7n.resolver import ValuesFrom
 
 log = logging.getLogger("custodian.huaweicloud.resources.ims")
 
@@ -19,7 +22,7 @@ log = logging.getLogger("custodian.huaweicloud.resources.ims")
 class Ims(QueryResourceManager):
     class resource_type(TypeInfo):
         service = 'ims'
-        enum_spec = ("glance_list_images", 'images', 'marker')
+        enum_spec = ("list_images", 'images', 'ims')
         id = 'id'
         tag = True
 
@@ -110,11 +113,29 @@ class SetPermissions(HuaweiCloudBaseAction):
 
 @Ims.action_registry.register("cancel-launch-permission")
 class CancelLaunchPermissions(HuaweiCloudBaseAction):
-    
+    """Accepted Or Rejected IMS Images.
+
+    :Example:
+
+    .. code-block:: yaml
+
+        policies:
+          - name: ims-cancel-launch-permission
+            resource: huaweicloud.ims
+            filters:
+              - type: value
+                key: name
+                value: "test"
+            actions:
+              - type: cancel-launch-permission
+                status: rejected
+                project_id: $project_id
+    """
     schema = type_schema('cancel-launch-permission', 
                          status={'type': 'string',"enum": ["accepted", "rejected"]},
                          project_id={'type': 'string'},
-                         vault_id={'type': 'string'})
+                         vault_id={'type': 'string'},
+                         required=('status','project_id'))
     def perform_action(self, resource):
         client = self.manager.get_client()
         request = BatchUpdateMembersRequest()
@@ -156,7 +177,8 @@ class Copy(HuaweiCloudBaseAction):
                          name={'type': 'string'},
                          enterprise_project_id={'type': 'string'},
                          description={'type': 'string'},
-                         cmk_id={'type': 'string'})
+                         cmk_id={'type': 'string'},
+                         required=('name'))
     def perform_action(self, resource):
         client = self.manager.get_client()
         request = CopyImageInRegionRequest()
@@ -195,4 +217,88 @@ class ImageAge(AgeFilter):
         'image-age',
         op={'$ref': '#/definitions/filters_common/comparison_operators'},
         days={'type': 'number', 'minimum': 0})
+
+
+@Ims.filter_registry.register("image-attribute")
+class ImageAttribute(ValueFilter):
+
+    valid_attrs = (
+        'virtual_env_type',
+        'status',
+        'disk_format',
+        '__os_type'
+    )
+
+    schema = type_schema(
+        'image-attribute',
+        rinherit=ValueFilter.schema,
+        attribute={'enum': valid_attrs},
+        required=('attribute',))
+    schema_alias = False
+
+    def process(self, resources, event=None):
+        attribute = self.data['attribute']
+        self.get_image_attribute(resources, attribute)
+        return [resource for resource in resources
+                if self.match(resource['image:attribute-%s' % attribute])]
+
+    def get_image_attribute(self, resources, attribute):
+        for resource in resources:
+            resource['image:attribute-%s' % attribute] = {'Value':resource[attribute]}
+
+
+
+# 过滤所有镜像中，共享给非白名单用户的镜像
+@Ims.filter_registry.register("cross-account")
+class ImageAttribute(ValueFilter):
+
+    schema = type_schema(
+        'cross-account',
+        list={'type': 'array', 'items': {'type': 'string'}})
+
+    def process_resource_set(self, accounts, resource_set):
+        results = []
+        for r in resource_set:
+            image_accounts = set(list_image_members(self, image_id=r['id']))
+            if not image_accounts:
+                continue
+            log.info("*************image_accounts %s" % image_accounts)
+            log.info("*************accounts %s" % accounts)
+            delta_accounts = image_accounts.difference(accounts)
+            if delta_accounts:
+                results.append(r)
+        return results
+
+    def process(self, resources, event=None):
+        results = []
+        accounts = self.data.get("list", None)
+        shared_or_private_resources = []
+        if not accounts:
+            return results
+        for resource in resources:
+            if resource['__imagetype'] in ('private', 'shared'):
+                shared_or_private_resources.append(resource)
+
+        try:
+            batch_result = self.process_resource_set(accounts, shared_or_private_resources)
+            results.extend(batch_result)
+        except Exception as e:
+            self.log.error("Exception checking cross account access \n %s" % e)
     
+        return results
+        
+def list_image_members(self,image_id):
+        client=self.manager.get_client()
+        member_id_list=[]
+        try:
+            request = GlanceListImageMembersRequest()
+            request.image_id = image_id
+            response = client.glance_list_image_members(request)
+            members=response.members
+            if not members:
+                return member_id_list
+            for member in members:
+                member_id_list.append(member.member_id)
+        except exceptions.ClientRequestException as e:
+            log.error(e.error_msg)
+        return member_id_list

@@ -25,8 +25,8 @@ class ResourceQuery:
         m = resource_manager.resource_type
         enum_op, path, pagination = m.enum_spec
 
-        if pagination == 'marker':
-            resources = self._pagination_limit_marker(m, enum_op, path)
+        if pagination == 'ims':
+            resources = self._pagination_ims(m, enum_op, path)
         elif pagination == 'offset':
             resources = self._pagination_limit_offset(m, enum_op, path)
         else:
@@ -65,36 +65,26 @@ class ResourceQuery:
         return getattr(client, enum_op)(request)
 
 
-    # ims的分页目前存在问题
-    def _pagination_limit_marker(self, m, enum_op, path):
+    def _pagination_ims(self, m, enum_op, path):
         session = local_session(self.session_factory)
         client = session.client(m.service)
 
         marker = None
         limit = DEFAULT_LIMIT_SIZE
         resources = []
-        while True:
+        while 1:
             request = session.request(m.service)
             request.limit = limit
-            if marker:
-                request.marker = marker
-            
+            request.marker = marker
             response = self._invoke_client_enum(client, enum_op, request)
             res = jmespath.search(path, eval(
                 str(response).replace('null', 'None').replace('false', 'False').replace('true', 'True')))
-
-            if res is not None:
-                for data in res:
-                    data['id'] = data[m.id]
-            resources.extend(res)
-
-            next_marker = response.next if hasattr(response, 'next') else None
-            if next_marker is None:
-                break
-            query_params = next_marker.split("?")[1] if "?" in next_marker else ""
-            params = parse_qs(query_params)
-            limit = params.get('limit', [None])[0]
-            marker = params.get('marker', [None])[0]
+            if not res:
+                return resources
+            for data in res:
+                data['id'] = data[m.id]
+                marker=data['id']
+            resources.extend(res)            
         return resources
 
 @sources.register('describe-huaweicloud')
