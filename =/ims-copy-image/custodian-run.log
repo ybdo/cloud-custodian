@@ -1,0 +1,3 @@
+2025-03-19 14:48:47,917 - custodian.policy - INFO - policy:ims-copy-image resource:huaweicloud.ims region: count:1 time:3.27
+2025-03-19 14:48:49,983 - custodian.huaweicloud.resources.ims - INFO - status_code:200
+2025-03-19 14:48:49,984 - custodian.policy - INFO - policy:ims-copy-image action:copy resources:1 execution_time:2.06

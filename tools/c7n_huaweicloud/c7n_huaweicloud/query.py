@@ -37,6 +37,7 @@ class ResourceQuery:
         m = resource_manager.resource_type
         enum_op, path, pagination = m.enum_spec
 
+        # ims special processing
         if pagination == 'ims':
             resources = self._pagination_ims(m, enum_op, path)
         elif pagination == 'offset':
@@ -150,7 +151,7 @@ class ResourceQuery:
     def _pagination_ims(self, m, enum_op, path):
         session = local_session(self.session_factory)
         client = session.client(m.service)
-
+        project_id=client._credentials.project_id
         marker = None
         limit = DEFAULT_LIMIT_SIZE
         resources = []
@@ -158,6 +159,7 @@ class ResourceQuery:
             request = session.request(m.service)
             request.limit = limit
             request.marker = marker
+            request.owner = project_id
             response = self._invoke_client_enum(client, enum_op, request)
             res = jmespath.search(path, eval(
                 str(response).replace('null', 'None').replace('false', 'False').replace('true', 'True')))

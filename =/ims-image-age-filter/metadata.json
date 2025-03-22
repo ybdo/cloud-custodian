@@ -1,0 +1,78 @@
+{
+  "policy": {
+    "name": "ims-image-age-filter",
+    "resource": "huaweicloud.ims",
+    "filters": [
+      {
+        "type": "image-attribute",
+        "attribute": "__os_type",
+        "key": "__os_type",
+        "value": "Linux",
+        "op": "eq"
+      }
+    ]
+  },
+  "version": "0.9.43",
+  "execution": {
+    "id": "f6e24cbd-fa8a-423d-bee1-b6944e7b50aa",
+    "start": 1742525530.0524313,
+    "end_time": 1742525539.5553606,
+    "duration": 9.502929210662842
+  },
+  "config": {
+    "region": "",
+    "regions": [],
+    "cache": "~/.cache/cloud-custodian.cache",
+    "profile": null,
+    "account_id": null,
+    "assume_role": null,
+    "session_policy": null,
+    "external_id": null,
+    "log_group": null,
+    "tracer": null,
+    "metrics_enabled": null,
+    "metrics": null,
+    "output_dir": "=",
+    "cache_period": 0,
+    "dryrun": false,
+    "authorization_file": null,
+    "subparser": "run",
+    "config": null,
+    "configs": [
+      "yml-test/ims_image-attribute.yml"
+    ],
+    "policy_filters": [],
+    "resource_types": [],
+    "verbose": null,
+    "quiet": null,
+    "debug": false,
+    "skip_validation": false,
+    "command": "c7n.commands.run",
+    "vars": null
+  },
+  "sys-stats": {
+    "snapshot_time": 9.502979278564453,
+    "num_fds": 1,
+    "cpu_user": 1.0899999999999999,
+    "cpu_system": 0.33999999999999997,
+    "rss": 20807680,
+    "vms": 95674368,
+    "shared": 655360,
+    "data": 95469568
+  },
+  "api-stats": {},
+  "metrics": [
+    {
+      "MetricName": "ResourceCount",
+      "Timestamp": "2025-03-21T10:52:19.554702",
+      "Value": 0,
+      "Unit": "Count"
+    },
+    {
+      "MetricName": "ResourceTime",
+      "Timestamp": "2025-03-21T10:52:19.554716",
+      "Value": 9.501050233840942,
+      "Unit": "Seconds"
+    }
+  ]
+}

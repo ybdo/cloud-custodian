@@ -222,6 +222,21 @@ class ImageAge(AgeFilter):
 @Ims.filter_registry.register("image-attribute")
 class ImageAttribute(ValueFilter):
 
+    """IMS Image Value Filter on a given image attribute.
+
+    :example:
+
+    .. code-block:: yaml
+
+            policies:
+              - name: ims-image-windows
+                resource: huaweicloud.ims
+                filters:
+                  - type: image-attribute
+                    attribute: __os_type
+                    key: "Value"
+                    value: Windows
+    """
     valid_attrs = (
         'virtual_env_type',
         'status',
